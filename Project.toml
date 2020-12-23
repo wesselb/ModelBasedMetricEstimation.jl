@@ -1,0 +1,13 @@
+name = "MBME"
+uuid = "99c981c4-7133-4adc-8e8f-527d752596c2"
+authors = ["Invenia Technical Computing Corporation"]
+version = "0.1.0"
+
+[compat]
+julia = "1.3"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
