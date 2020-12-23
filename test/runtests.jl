@@ -7,4 +7,5 @@ using Test
 
 @testset "TailPickles.jl" begin
     include("model.jl")
+    include("estimate.jl")
 end

@@ -1,5 +1,4 @@
-import TailPickles: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, ParetoTails,
-    DifferentiableParetoTails, Mixture
+import TailPickles: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, Mixture
 
 @testset "Model"  begin
     for (sampleable, (d, θ, ε_θ)) in [
@@ -10,20 +9,18 @@ import TailPickles: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, P
         (true,  Gaussian() |> Scale(σ=2.0) |> Location(μ=0.2)),
         (true,  Gaussian() |> Scale(σ=2.0) |> Asymmetric()),
         (true,  Asymmetric(Gaussian() |> Scale(σ=2.0), StudentsT(ν=2.0))),
-        (false, Gaussian() |> Scale(σ=2.0) |> ParetoTails(x₁=-1.5, α₁=1.0, x₂=1.5, α₂=1.0)),
-        (false, Gaussian() |> Scale(σ=1.0) |> DifferentiableParetoTails(x=1.5)),
         (true,  Mixture(Gaussian() |> Scale(σ=2.0), StudentsT(ν=2.0)))
     ]
         println("Test case:")
         print(TailPickles.display(d, θ, ε_θ, " | "))
-        
+
         # Check that the PDF integrates to one.
         numerical_intergral = solve(
             QuadratureProblem((x, _) -> TailPickles.pdf(d, x, θ), -Inf, Inf),
             QuadGKJL(), reltol=1e-8
         ).u
         @test numerical_intergral ≈ 1 rtol=1e-6
-        
+
         for q in [-2.0, -1.0, -0.5, 0.5, 1.0, 2.0]
             # Check that the CDF agrees with the numerically integrated PDF.
             numerical_cdf = solve(
@@ -57,7 +54,7 @@ import TailPickles: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, P
             for p in [0.05, 0.95]
                 x₀ = quantile(rand(d, 1000, θ), p)
                 numerical_grad = FiniteDifferences.grad(
-                    central_fdm(7, 1), 
+                    central_fdm(7, 1),
                     θ′ -> TailPickles.es(d, p, θ′, x₀=x₀, rtol=1e-8),
                     θ
                 )[1]
@@ -70,7 +67,7 @@ import TailPickles: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, P
             mc_est = mean(f.(rand(d, 1_000_000, θ)))
             @test mc_est ≈ TailPickles.expectation(f, d, θ) rtol=1e-2
             numerical_grad = FiniteDifferences.grad(
-                central_fdm(7, 1), 
+                central_fdm(7, 1),
                 θ′ -> TailPickles.expectation(f, d, θ′, rtol=1e-8),
                 θ
             )[1]
