@@ -1,6 +1,10 @@
-using MBME
+using FiniteDifferences
+using Metrics
+using Quadrature
+using Statistics
+using TailPickles
 using Test
 
-@testset "MBME.jl" begin
-    # Write your tests here.
+@testset "TailPickles.jl" begin
+    include("model.jl")
 end
