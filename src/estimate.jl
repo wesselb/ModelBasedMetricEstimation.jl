@@ -3,7 +3,13 @@
 
 Run L-BFGS to maximise a target function.
 """
+<<<<<<< HEAD
 function lbfgs_n(target, θ₀; verbose=false)
+=======
+function lbfgs(target, θ₀; verbose=false)
+    # target_min(θ) = -target(θ)  # Turn maximisation into a minimisation problem.
+    # objective(θ) = target_min(θ), ForwardDiff.gradient(target_min, θ)
+>>>>>>> 9eb2d0e... Make NLopt the only option
     opt = Opt(:LD_LBFGS, length(θ₀))
     
     # Define objective function 
@@ -18,29 +24,10 @@ function lbfgs_n(target, θ₀; verbose=false)
     opt.xtol_rel = 1e-8
     opt.ftol_rel = 1e-12
 
-    (optf,optx,ret) = optimize(opt, θ₀)#; @show ret; @show optf
+    (optf,optx,ret) = optimize(opt, θ₀)
 
     return optx
 end 
-
-
-function lbfgs(target, θ₀; verbose=false)
-    target_min(θ) = -target(θ)  # Turn maximisation into a minimisation problem.
-    objective(θ) = target_min(θ), ForwardDiff.gradient(target_min, θ)
-    so = pyimport("scipy.optimize")
-    out = so.fmin_l_bfgs_b(
-        func=objective,
-        x0=θ₀,
-        maxiter=20_000,
-        maxfun=100_000,
-        disp=Int(verbose),
-        maxls=100,
-        factr=10,
-        pgtol=1e-8
-    )
-   # @show out[2]
-    return out[1]
-end
 
 """
     hmc(target, θ₀, n; verbose=false, progress=false)
@@ -116,58 +103,7 @@ function estimate_laplace(
     _return_mean_std=false
 )
     target = _make_target(x, prior, α, likelihood, features=features)
-    θ = lbfgs(target, θ₀, verbose=verbose)#; @show θ
-    H = ForwardDiff.hessian(target, θ)
-    # It can be that the optimisation did not fully converge. Hence, be more careful with
-    # the inversion here.
-    F = eigen(Symmetric(H))
-    any(F.values .>= 0) && @warn "Optimisation failed to properly converge."
-    Σ = Symmetric(F.vectors * Diagonal([
-        λ >= 0 ? 1e-10 : 1e-10 - inv(λ) for λ in F.values
-    ]) * F.vectors')
-    ε_θ = 1.96sqrt.(diag(Σ))
-
-    if verbose
-        println("\nθ₀:")
-        print(display(likelihood, θ₀, ε_θ₀, "  "))
-        println("\nMAP θ:")
-        print(display(likelihood, θ, ε_θ, "  "))
-        println()
-        _show_plots(likelihood, θ, x, features=features)
-    end
-
-    if sample || _return_samples
-        # Propagate uncertainty through sampling.
-        L = cholesky(Σ).U'
-        θ_samples = L * randn(size(Σ, 1), 200) .+ θ
-        samples = [functional(θ_samples[:, i]) for i = 1:200]
-        _return_samples && return samples
-        ci = Interval{Closed, Closed}(quantile(samples, 0.025), quantile(samples, 0.975))
-        return mean(samples), ci
-    else
-        # Use delta method to approximate distribution of functional.
-        ∇ = isnothing(∇functional) ? ForwardDiff.gradient(functional, θ) : ∇functional(θ)
-        θ = functional(θ)
-        σ = sqrt(dot(∇, Σ * ∇))
-        _return_mean_std && return θ, σ
-        ε = 1.96σ
-        return θ, Interval{Closed, Closed}(θ - ε, θ + ε)
-    end
-end
-
-function estimate_laplace_n(
-    x,
-    prior, α,
-    likelihood, θ₀, ε_θ₀,
-    functional, ∇functional=nothing;
-    features=nothing,
-    verbose=false,
-    sample=true,
-    _return_samples=false,
-    _return_mean_std=false
-)
-    target = _make_target(x, prior, α, likelihood, features=features)
-    θ = lbfgs_n(target, θ₀, verbose=verbose)#; @show θ
+    θ = lbfgs(target, θ₀, verbose=verbose)
     H = ForwardDiff.hessian(target, θ)
     # It can be that the optimisation did not fully converge. Hence, be more careful with
     # the inversion here.
@@ -261,7 +197,6 @@ function estimate_metric(
     verbose::Bool=false,
     _return_samples=false,
     _return_mean_std=false,
-    nlopt=false,
 )
     if !isnothing(features)
         # Compress features.
@@ -358,20 +293,8 @@ function estimate_metric(
 
     # Setup call to estimation procedure.
     function _estimate(functional, ∇functional)
-        if method == :laplace && !nlopt
+        if method == :laplace
             return estimate_laplace(
-                x,
-                prior, α,
-                likelihood, θ₀, ε_θ₀,
-                functional, ∇functional,
-                verbose=verbose,
-                features=features,
-                sample=laplace_sample,
-                _return_samples=_return_samples,
-                _return_mean_std=_return_mean_std
-            )
-        elseif method == :laplace && nlopt
-            return estimate_laplace_n(
                 x,
                 prior, α,
                 likelihood, θ₀, ε_θ₀,
