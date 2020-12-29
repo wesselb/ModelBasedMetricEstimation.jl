@@ -83,7 +83,7 @@ function estimate_hmc(
         ε_θ = quantile.(samples_θᵢ, 0.975) .- quantile.(samples_θᵢ, 0.025)
         print(display(likelihood, θ, ε_θ, "  "))
         println()
-        _show_plots(likelihood, θ, x, features=features)
+        # _show_plots(likelihood, θ, x, features=features)
     end
     samples = functional.(samples[1:Int(n / m):end])
     _return_samples && return samples
@@ -120,7 +120,7 @@ function estimate_laplace(
         println("\nMAP θ:")
         print(display(likelihood, θ, ε_θ, "  "))
         println()
-        _show_plots(likelihood, θ, x, features=features)
+        # _show_plots(likelihood, θ, x, features=features)
     end
 
     if sample || _return_samples
@@ -416,78 +416,78 @@ function _residualise(d::Linear{n}, θ, x; features) where n
     )
 end
 
-function _show_plots(likelihood, θ, x; features=nothing)
-    # Look at the residuals.
-    likelihood, θ, x = _residualise(likelihood, θ, x, features=features)
+# function _show_plots(likelihood, θ, x; features=nothing)
+#     # Look at the residuals.
+#     likelihood, θ, x = _residualise(likelihood, θ, x, features=features)
 
-    ps = collect(2:length(x) - 1) ./ length(x)
-    x = sort(x)[2:end - 1]  # Skip minumum and maximum, which are `-Inf` and `Inf`.
-    model_quants = @showprogress "Computing model quantiles: " map(zip(ps, x)) do (p, xᵢ)
-        icdf(likelihood, p, θ, x₀=xᵢ)
-    end
+#     ps = collect(2:length(x) - 1) ./ length(x)
+#     x = sort(x)[2:end - 1]  # Skip minumum and maximum, which are `-Inf` and `Inf`.
+#     model_quants = @showprogress "Computing model quantiles: " map(zip(ps, x)) do (p, xᵢ)
+#         icdf(likelihood, p, θ, x₀=xᵢ)
+#     end
 
-    # Make Q-Q plots.
-    function plot_inds(inds)
-        err = (
-            2sqrt.(ps .* (1 .- ps))
-            ./ pdf(likelihood, model_quants, θ)
-            ./ sqrt(length(x))
-        )
-        plot(
-            sort(x)[inds],
-            (sort(x) .- model_quants)[inds],
-            ls="-", lw=0.5, marker="o", markersize=2
-        )
-        plot(
-            sort(x)[inds],
-            (sort(x) .- model_quants .- err)[inds],
-            c="tab:red", ls="-", lw=0.5, marker="o", markersize=2
-        )
-        plot(
-            sort(x)[inds],
-            (sort(x) .- model_quants .+ err)[inds],
-            c="tab:red", ls="-", lw=0.5, marker="o", markersize=2
-        )
-    end
+#     # Make Q-Q plots.
+#     function plot_inds(inds)
+#         err = (
+#             2sqrt.(ps .* (1 .- ps))
+#             ./ pdf(likelihood, model_quants, θ)
+#             ./ sqrt(length(x))
+#         )
+#         plot(
+#             sort(x)[inds],
+#             (sort(x) .- model_quants)[inds],
+#             ls="-", lw=0.5, marker="o", markersize=2
+#         )
+#         plot(
+#             sort(x)[inds],
+#             (sort(x) .- model_quants .- err)[inds],
+#             c="tab:red", ls="-", lw=0.5, marker="o", markersize=2
+#         )
+#         plot(
+#             sort(x)[inds],
+#             (sort(x) .- model_quants .+ err)[inds],
+#             c="tab:red", ls="-", lw=0.5, marker="o", markersize=2
+#         )
+#     end
 
-    figure(figsize=(12, 8))
+#     figure(figsize=(12, 8))
 
-    m = 20
+#     m = 20
 
-    subplot(2, 2, 1)
-    title("All")
-    plot_inds(1:length(x))
-    ylabel("Data Quantile Overshoot")
-    grid()
+#     subplot(2, 2, 1)
+#     title("All")
+#     plot_inds(1:length(x))
+#     ylabel("Data Quantile Overshoot")
+#     grid()
 
-    subplot(2, 2, 2)
-    title("Bulk")
-    plot_inds((m + 1):(length(x) - m))
-    grid()
+#     subplot(2, 2, 2)
+#     title("Bulk")
+#     plot_inds((m + 1):(length(x) - m))
+#     grid()
 
-    subplot(2, 2, 3)
-    title("Left Tail")
-    plot_inds(1:m)
-    ylabel("Data Quantile Overshoot")
-    xlabel("Data Quantile")
-    grid()
+#     subplot(2, 2, 3)
+#     title("Left Tail")
+#     plot_inds(1:m)
+#     ylabel("Data Quantile Overshoot")
+#     xlabel("Data Quantile")
+#     grid()
 
-    subplot(2, 2, 4)
-    title("Right Tail")
-    plot_inds((length(x) - m + 1):length(x))
-    xlabel("Data Quantile")
-    grid()
+#     subplot(2, 2, 4)
+#     title("Right Tail")
+#     plot_inds((length(x) - m + 1):length(x))
+#     xlabel("Data Quantile")
+#     grid()
 
-    tight_layout()
+#     tight_layout()
 
-    # Plot estimated likelihood.
-    figure(figsize=(12, 4))
-    x_plot = collect(range(minimum(x), maximum(x), length=1000))
-    hist(x, bins=200, density=true)
-    plot(x_plot, pdf(likelihood, x_plot, θ))
-    scatter(x, x .* 0, s=10, alpha=0.15, edgecolor="none")
-    title("Model Likelihood")
-    grid()
+#     # Plot estimated likelihood.
+#     figure(figsize=(12, 4))
+#     x_plot = collect(range(minimum(x), maximum(x), length=1000))
+#     hist(x, bins=200, density=true)
+#     plot(x_plot, pdf(likelihood, x_plot, θ))
+#     scatter(x, x .* 0, s=10, alpha=0.15, edgecolor="none")
+#     title("Model Likelihood")
+#     grid()
 
-    show()
-end
+#     show()
+# end

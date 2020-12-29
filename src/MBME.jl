@@ -9,8 +9,6 @@ using Metrics
 using NLopt
 using Printf
 using ProgressMeter
-using PyCall
-using PyPlot
 using Quadrature
 using SpecialFunctions
 using Statistics
