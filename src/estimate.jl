@@ -3,13 +3,7 @@
 
 Run L-BFGS to maximise a target function.
 """
-<<<<<<< HEAD
-function lbfgs_n(target, θ₀; verbose=false)
-=======
 function lbfgs(target, θ₀; verbose=false)
-    # target_min(θ) = -target(θ)  # Turn maximisation into a minimisation problem.
-    # objective(θ) = target_min(θ), ForwardDiff.gradient(target_min, θ)
->>>>>>> 9eb2d0e... Make NLopt the only option
     opt = Opt(:LD_LBFGS, length(θ₀))
     
     # Define objective function 
