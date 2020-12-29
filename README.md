@@ -2,11 +2,13 @@
 
 #### Contents
 
-- [Important Notes](#important-notes)
-- [Quick Start](#quick-start)
-- [Example: Confidence Intervals For Expected Shortfall](#example-confidence-intervals-for-expected-shortfall)
-- [Help!](#help)
-- [Ideas for Future Work](#ideas-for-future-work)
+- [Parametric Metric Estimation](#parametric-metric-estimation)
+      - [Contents](#contents)
+  - [Important Notes](#important-notes)
+  - [Quick start](#quick-start)
+  - [Example: Confidence Intervals For Expected Shortfall](#example-confidence-intervals-for-expected-shortfall)
+  - [Help!](#help)
+  - [Ideas for Future Work](#ideas-for-future-work)
 
 ## Important Notes
 
@@ -22,7 +24,7 @@ Use at your own risk.
 ## Quick start
 
 ```julia
-julia> using TailPickles, Statistics
+julia> using MBME, Statistics
 
 julia> estimate_metric(mean, randn(100))
 (0.024958916510256165, Intervals.Interval{Float64,Intervals.Closed,Intervals.Closed}(-0.20370101694421278, 0.2945224118131819))
@@ -90,7 +92,7 @@ search: estimate_metric
 ## Example: Confidence Intervals For Expected Shortfall
 
 ```julia
-julia> using TailPickles, Metrics, Distributions, ProgressMeter
+julia> using MBME, Metrics, Distributions, ProgressMeter
 
 julia> x = rand(Distributions.TDist(2.5), 500);
 
@@ -126,7 +128,7 @@ Progress: 100%|█████████████████████�
 
 ## Help!
 
-If the results are look like garbage, try setting `verbose=true` to see what is going on.
+If the results look like garbage, try setting `verbose=true` to see what is going on.
 You will be shown a lot more detail and also QQ-plots to assess the model fit.
 
 ## Ideas for Future Work
