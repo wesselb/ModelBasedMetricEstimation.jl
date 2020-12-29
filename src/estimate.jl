@@ -1,9 +1,9 @@
 """
-    lbfgs(target, θ₀; verbose=true)
+    lbfgs(target, θ₀; verbose=false)
 
 Run L-BFGS to maximise a target function.
 """
-function lbfgs(target, θ₀; verbose=true)
+function lbfgs(target, θ₀; verbose=false)
     target_min(θ) = -target(θ)  # Turn maximisation into a minimisation problem.
     objective(θ) = target_min(θ), ForwardDiff.gradient(target_min, θ)
     so = pyimport("scipy.optimize")
@@ -20,11 +20,11 @@ function lbfgs(target, θ₀; verbose=true)
 end
 
 """
-    hmc(target, θ₀, n; verbose=true)
+    hmc(target, θ₀, n; verbose=false, progress=false)
 
 Run HMC to sample from a target density.
 """
-function hmc(target, θ₀, ε_θ₀, n; verbose=true)
+function hmc(target, θ₀, ε_θ₀, n; verbose=false, progress=false)
     # Define Hamiltonian system.
     metric = DiagEuclideanMetric((ε_θ₀ ./ 1.96).^2)  # Error ≈ 2σ.
     hamiltonian = Hamiltonian(metric, target, ForwardDiff)
@@ -38,7 +38,10 @@ function hmc(target, θ₀, ε_θ₀, n; verbose=true)
     adaptor = StanHMCAdaptor(MassMatrixAdaptor(metric), StepSizeAdaptor(0.8, integrator))
 
     # Run sampler.
-    samples, _ = sample(hamiltonian, proposal, θ₀, 2n, adaptor, n; progress=verbose)
+    samples, _ = sample(
+        hamiltonian, proposal, θ₀, 2n, adaptor, n; 
+        progress=progress, verbose=verbose
+    )
     return samples[n + 1:end]  # Remove adaptation samples.
 end
 
@@ -52,6 +55,7 @@ function estimate_hmc(
     n, m,
     functional;
     verbose=false,
+    progress=false,
     features=nothing,
     _return_samples=false
 )
@@ -61,7 +65,7 @@ function estimate_hmc(
         print(display(likelihood, θ₀, ε_θ₀, "  "))
         println()
     end
-    samples = hmc(target, θ₀, ε_θ₀, n, verbose=verbose)
+    samples = hmc(target, θ₀, ε_θ₀, n, verbose=verbose, progress=progress)
     if verbose
         println("\nPost θ:")
         samples_θᵢ = [[sample[i] for sample in samples] for i = 1:length(θ₀)]
@@ -83,7 +87,7 @@ function estimate_laplace(
     likelihood, θ₀, ε_θ₀,
     functional, ∇functional=nothing;
     features=nothing,
-    verbose=true,
+    verbose=false,
     sample=true,
     _return_samples=false,
     _return_mean_std=false

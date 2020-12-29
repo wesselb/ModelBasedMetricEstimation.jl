@@ -11,8 +11,6 @@ import MBME: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, Mixture
         (true,  Asymmetric(Gaussian() |> Scale(σ=2.0), StudentsT(ν=2.0))),
         (true,  Mixture(Gaussian() |> Scale(σ=2.0), StudentsT(ν=2.0)))
     ]
-        println("Test case:")
-        print(MBME.display(d, θ, ε_θ, " | "))
 
         # Check that the PDF integrates to one.
         numerical_intergral = solve(
