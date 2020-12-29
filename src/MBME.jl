@@ -6,6 +6,7 @@ using ForwardDiff
 using Intervals
 using LinearAlgebra
 using Metrics
+using NLopt
 using Printf
 using ProgressMeter
 using PyCall
