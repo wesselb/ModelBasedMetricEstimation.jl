@@ -1,4 +1,4 @@
-module TailPickles
+module MBME
 
 using AdvancedHMC
 using Distributions

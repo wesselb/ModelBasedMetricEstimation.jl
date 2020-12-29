@@ -1,6 +1,6 @@
-name = "TailPickles"
-uuid = "3078ed4c-2060-47ec-a880-7c607aef4d74"
-authors = ["Wessel Bruinsma <wessel.p.bruinsma@gmail.com>"]
+name = "MBME"
+uuid = "4ec400e8-0c43-442c-88a9-8d926b4296c4"
+authors = ["Invenia Technical Computing Corporation"]
 version = "0.1.0"
 
 [deps]
@@ -24,3 +24,10 @@ Zygote = "e88e6eb3-aa80-5325-afca-941959d7151f"
 
 [compat]
 Quadrature = "=1.3"
+julia = "1.3"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
