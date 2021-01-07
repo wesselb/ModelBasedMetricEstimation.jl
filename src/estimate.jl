@@ -8,7 +8,7 @@ function lbfgs(target, θ₀; verbose=false)
     
     # Define objective function 
     function obj(θ, gradient_θ)
-        gradient_θ[:] = ForwardDiff.gradient(target, θ) # Must update inplace.
+        ForwardDiff.gradient!(gradient_θ, target, θ) 
         return target(θ)
     end  
     opt.max_objective = obj # This is a maximisation problem.
