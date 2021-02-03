@@ -7,6 +7,7 @@ using Intervals
 using LinearAlgebra
 using Metrics
 using NLopt
+using Plots
 using Printf
 using ProgressMeter
 using Quadrature
