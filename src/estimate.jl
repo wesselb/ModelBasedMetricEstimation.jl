@@ -4,20 +4,24 @@
 Run L-BFGS to maximise a target function.
 """
 function lbfgs(target, θ₀; verbose=false)
-    target_min(θ) = -target(θ)  # Turn maximisation into a minimisation problem.
-    objective(θ) = target_min(θ), ForwardDiff.gradient(target_min, θ)
-    so = pyimport("scipy.optimize")
-    return so.fmin_l_bfgs_b(
-        func=objective,
-        x0=θ₀,
-        maxiter=20_000,
-        maxfun=100_000,
-        disp=Int(verbose),
-        maxls=100,
-        factr=10,
-        pgtol=1e-8
-    )[1]
-end
+    opt = Opt(:LD_LBFGS, length(θ₀))
+    
+    # Define objective function 
+    function obj(θ, gradient_θ)
+        ForwardDiff.gradient!(gradient_θ, target, θ) 
+        return target(θ)
+    end  
+    opt.max_objective = obj # This is a maximisation problem.
+
+    # Stopping criteria.
+    opt.maxeval = 100_000 
+    opt.xtol_rel = 1e-8
+    opt.ftol_rel = 1e-12
+
+    (optf,optx,ret) = optimize(opt, θ₀)
+
+    return optx
+end 
 
 """
     hmc(target, θ₀, n; verbose=false, progress=false)
@@ -186,7 +190,7 @@ function estimate_metric(
     laplace_sample::Bool=true,
     verbose::Bool=false,
     _return_samples=false,
-    _return_mean_std=false
+    _return_mean_std=false,
 )
     if !isnothing(features)
         # Compress features.
@@ -416,68 +420,51 @@ function _show_plots(likelihood, θ, x; features=nothing)
         icdf(likelihood, p, θ, x₀=xᵢ)
     end
 
-    # Make Q-Q plots.
-    function plot_inds(inds)
+     # Make Q-Q plots.
+    function plot_inds!(figure, inds, subplot, title, ylabel, xlabel)
         err = (
-            2sqrt.(ps .* (1 .- ps))
-            ./ pdf(likelihood, model_quants, θ)
-            ./ sqrt(length(x))
+            2 * sqrt.(ps .* (1 .- ps))
+                ./ pdf(likelihood, model_quants, θ)
+                ./ sqrt(length(x))
         )
-        plot(
+        plot!(
+            figure,
             sort(x)[inds],
             (sort(x) .- model_quants)[inds],
-            ls="-", lw=0.5, marker="o", markersize=2
+            lw=0.5, markershape=:circle, markersize=2,
+            subplot=subplot, title=title, ylabel=ylabel, xlabel=xlabel,
         )
-        plot(
+        plot!(
+            figure,
             sort(x)[inds],
             (sort(x) .- model_quants .- err)[inds],
-            c="tab:red", ls="-", lw=0.5, marker="o", markersize=2
+            c="red", lw=0.5, markershape=:circle, markersize=2,
+            subplot=subplot, title=title, ylabel=ylabel, xlabel=xlabel,
         )
-        plot(
+        plot!(
+            figure, 
             sort(x)[inds],
             (sort(x) .- model_quants .+ err)[inds],
-            c="tab:red", ls="-", lw=0.5, marker="o", markersize=2
+            c="red", lw=0.5, markershape=:circle, markersize=2,
+            subplot=subplot, title=title, ylabel=ylabel, xlabel=xlabel,
         )
     end
 
-    figure(figsize=(12, 8))
+    lay = @layout [grid(2, 2){0.666h}; a]
+    fig = plot(size=(1200, 1200), layout=lay, reuse=false)
 
     m = 20
 
-    subplot(2, 2, 1)
-    title("All")
-    plot_inds(1:length(x))
-    ylabel("Data Quantile Overshoot")
-    grid()
-
-    subplot(2, 2, 2)
-    title("Bulk")
-    plot_inds((m + 1):(length(x) - m))
-    grid()
-
-    subplot(2, 2, 3)
-    title("Left Tail")
-    plot_inds(1:m)
-    ylabel("Data Quantile Overshoot")
-    xlabel("Data Quantile")
-    grid()
-
-    subplot(2, 2, 4)
-    title("Right Tail")
-    plot_inds((length(x) - m + 1):length(x))
-    xlabel("Data Quantile")
-    grid()
-
-    tight_layout()
+    plot_inds!(fig, 1:length(x), 1, "All", "Data Quantile Overshoot", "")
+    plot_inds!(fig, (m + 1):(length(x) - m), 2, "Bulk", "", "")
+    plot_inds!(fig, 1:m, 3, "Left Tail", "Data Quantile Overshoot", "Data Quantile")
+    plot_inds!(fig, (length(x) - m + 1):length(x), 4, "Right Tail", "", "Data Quantile")
 
     # Plot estimated likelihood.
-    figure(figsize=(12, 4))
     x_plot = collect(range(minimum(x), maximum(x), length=1000))
-    hist(x, bins=200, density=true)
-    plot(x_plot, pdf(likelihood, x_plot, θ))
-    scatter(x, x .* 0, s=10, alpha=0.15, edgecolor="none")
-    title("Model Likelihood")
-    grid()
+    histogram!(fig, x, bins=200, density=true, subplot=5)
+    plot!(fig, x_plot, pdf(likelihood, x_plot, θ), title="Model Likelihood", subplot=5)
+    scatter!(fig, x, x .* 0, markersize=10, alpha=0.15, edgecolor="none", subplot=5)
 
-    show()
+    gui(fig)
 end

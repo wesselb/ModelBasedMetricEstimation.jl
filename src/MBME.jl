@@ -6,10 +6,10 @@ using ForwardDiff
 using Intervals
 using LinearAlgebra
 using Metrics
+using NLopt
+using Plots
 using Printf
 using ProgressMeter
-using PyCall
-using PyPlot
 using Quadrature
 using SpecialFunctions
 using Statistics

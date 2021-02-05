@@ -8,6 +8,9 @@ include:
 # Only include 64-bit jobs; research typically involves high memory machines anyway
 variables:
   platform: "x86_64"  # 64-bit
+  # Exclude Documentation job from teardown stage because package does not have docs
+  exclude: "\"Documentation\""
+
 
 # If you need to install system packages, such as `unzip`, you can do so as follows:
 #.test:
