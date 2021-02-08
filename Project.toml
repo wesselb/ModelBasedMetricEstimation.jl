@@ -1,5 +1,5 @@
-name = "MBME"
-uuid = "4ec400e8-0c43-442c-88a9-8d926b4296c4"
+name = "ModelBasedMetricEstimation"
+uuid = "4ec400e8-0c43-442c-88a9-8d926b429666"
 authors = ["Invenia Technical Computing Corporation"]
 version = "0.1.0"
 

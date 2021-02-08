@@ -2,10 +2,10 @@ using FiniteDifferences
 using Metrics
 using Quadrature
 using Statistics
-using MBME
+using ModelBasedMetricEstimation
 using Test
 
-@testset "MBME.jl" begin
+@testset "ModelBasedMetricEstimation.jl" begin
     include("model.jl")
     include("estimate.jl")
 end
