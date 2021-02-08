@@ -1,4 +1,4 @@
-module MBME
+module ModelBasedMetricEstimation
 
 using AdvancedHMC
 using Distributions

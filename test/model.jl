@@ -1,4 +1,6 @@
-import MBME: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, Mixture
+import ModelBasedMetricEstimation: Gaussian, Laplace, StudentsT, Location, Scale, Asymmetric, Mixture
+
+MBME = ModelBasedMetricEstimation
 
 @testset "Model"  begin
     for (sampleable, (d, θ, ε_θ)) in [
