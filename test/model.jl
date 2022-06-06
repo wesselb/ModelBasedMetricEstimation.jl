@@ -16,7 +16,7 @@ MBME = ModelBasedMetricEstimation
 
         # Check that the PDF integrates to one.
         numerical_intergral = solve(
-            QuadratureProblem((x, _) -> MBME.pdf(d, x, θ), -Inf, Inf),
+            IntegralProblem((x, _) -> MBME.pdf(d, x, θ), -Inf, Inf),
             QuadGKJL(), reltol=1e-8
         ).u
         @test numerical_intergral ≈ 1 rtol=1e-6
@@ -24,7 +24,7 @@ MBME = ModelBasedMetricEstimation
         for q in [-2.0, -1.0, -0.5, 0.5, 1.0, 2.0]
             # Check that the CDF agrees with the numerically integrated PDF.
             numerical_cdf = solve(
-                QuadratureProblem((x, _) -> MBME.pdf(d, x, θ), -Inf, q),
+                IntegralProblem((x, _) -> MBME.pdf(d, x, θ), -Inf, q),
                 QuadGKJL(), reltol=1e-8
             ).u
             analytical_cdf = MBME.cdf(d, q, θ)

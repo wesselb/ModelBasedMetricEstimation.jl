@@ -19,12 +19,12 @@ _integrand′(z, ν) = Zygote.gradient(ν′ -> _integrand(z, ν′), ν)[1]
 _tfun(x, ν) = _tfun(promote(x, ν)...)
 _tfun(x::Float64, ν::Float64) =
     solve(
-        QuadratureProblem(_integrand, -Inf, x, ν),
+        IntegralProblem(_integrand, -Inf, x, ν),
         QuadGKJL(), reltol=1e-8
     ).u
 function _tfun(x::Dual{T}, ν::Dual{T}) where T
     derivative_ν = solve(
-        QuadratureProblem(_integrand′, -Inf, value(x), value(ν)),
+        IntegralProblem(_integrand′, -Inf, value(x), value(ν)),
         QuadGKJL(), reltol=1e-8
     ).u
     derivative_x = _integrand(value(x), value(ν))
