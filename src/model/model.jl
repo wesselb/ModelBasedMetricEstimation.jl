@@ -58,7 +58,7 @@ function es(d::Distribution, p, θ; rtol=1e-6, x₀=0.0, trunc=1e10, features=no
     end
     σ = std(rand(d, 100, θ, features=features)) / 10
     return (p < 0.5 ? -1 : 1) * solve(
-        QuadratureProblem(
+        IntegralProblem(
             (x, _) -> (abs(x) >= trunc ? 0 : σ^2 * x * pdf(d, σ * x, θ, features=features)),
             p < 0.5 ? -Inf : q / σ,
             p < 0.5 ? q / σ : Inf
@@ -80,7 +80,7 @@ function ∇es(d::Distribution, p, θ; rtol=1e-6, x₀=0.0, trunc=1e10, features
     integrand(x) = 
         σ^2 .* x .* ForwardDiff.gradient(θ′ -> pdf(d, σ * x, θ′, features=features), θ)
     ∇integral = solve(
-        QuadratureProblem(
+        IntegralProblem(
             (x, _) -> (abs(x) >= trunc ? zeros(length(θ)) : integrand(x)),
             p < 0.5 ? -Inf : q / σ,
             p < 0.5 ? q / σ : Inf
@@ -95,7 +95,7 @@ end
 function expectation(f, d::Distribution, θ; rtol=1e-8, trunc=1e10, features=nothing)
     σ = std(rand(d, 100, θ, features=features)) / 10
     integrand(x, θ) = σ * f(σ * x) * pdf(d, σ * x, θ, features=features)
-    return solve(QuadratureProblem(
+    return solve(IntegralProblem(
         (x, θ′) -> abs(x) >= trunc ? 0 : integrand(x, θ′), -Inf, Inf, θ
     ), QuadGKJL(), reltol=rtol).u
 end
@@ -103,7 +103,7 @@ function ∇expectation(f, d::Distribution, θ; rtol=1e-8, trunc=1e10, features=
     σ = std(rand(d, 100, θ, features=features)) / 10
     integrand(x, θ) = 
         σ * f(σ * x) * ForwardDiff.gradient(θ′ -> pdf(d, σ * x, θ′, features=features), θ)
-    return solve(QuadratureProblem(
+    return solve(IntegralProblem(
         (x, θ′) -> abs(x) >= trunc ? zeros(length(θ)) : integrand(x, θ′), -Inf, Inf, θ
     ), QuadGKJL(), reltol=rtol).u
 end

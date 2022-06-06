@@ -10,7 +10,7 @@ using NLopt
 using Plots
 using Printf
 using ProgressMeter
-using Quadrature
+using Integrals
 using SpecialFunctions
 using Statistics
 using StatsBase

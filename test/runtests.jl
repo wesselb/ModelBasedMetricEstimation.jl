@@ -1,6 +1,6 @@
 using FiniteDifferences
 using Metrics
-using Quadrature
+using Integrals
 using Random
 using Statistics
 using ModelBasedMetricEstimation
