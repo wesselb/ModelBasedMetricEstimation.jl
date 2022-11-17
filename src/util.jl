@@ -1,16 +1,16 @@
 function _logsumexp(x; dims=:)
-    u = Zygote.dropgrad(maximum(x, dims=dims))
+    u = ignore_derivatives(maximum(x, dims=dims))
     return log.(sum(exp.(x .- u), dims=dims)) .+ u
 end
 
 function _if_then(c, a, b)
-    c = Zygote.dropgrad(c)
+    c = ignore_derivatives(c)
     return c .* a .+ (1 .- c) .* b
 end
 
 function _if_then2(c₁, c₂, a, b, c)
-    c₁ = Zygote.dropgrad(c₁)
-    c₂ = Zygote.dropgrad(c₂)
+    c₁ = ignore_derivatives(c₁)
+    c₂ = ignore_derivatives(c₂)
     return c₁ .* a .+ (1 .- c₁) .* c₂ .* b .+ (1 .- c₁) .* (1 .- c₂) .* c
 end
 

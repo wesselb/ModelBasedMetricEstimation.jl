@@ -1,10 +1,11 @@
 name = "ModelBasedMetricEstimation"
 uuid = "7c831952-1356-4a4c-8319-237391c22eaa"
 authors = ["Invenia Technical Computing Corporation"]
-version = "0.1.5"
+version = "0.1.6"
 
 [deps]
 AdvancedHMC = "0bf59076-c3b1-5ca4-86bd-e02cd72cde3d"
+ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
@@ -36,6 +37,7 @@ ProgressMeter = "1.4"
 SpecialFunctions = "1"
 StatsBase = "0.33"
 Zygote = "0.5, 0.6"
+ChainRulesCore = "1.9"
 julia = "1.5"
 
 [extras]

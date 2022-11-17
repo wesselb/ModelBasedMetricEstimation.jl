@@ -1,6 +1,7 @@
 module ModelBasedMetricEstimation
 
 using AdvancedHMC
+using ChainRulesCore: ignore_derivatives
 using Distributions
 using ForwardDiff
 using Intervals
